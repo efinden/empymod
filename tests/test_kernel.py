@@ -123,8 +123,8 @@ def test_halfspace():                                            # 7. halfspace
     for key in hs:
         # Get halfspace
         hs_res = kernel.halfspace(**hs[key])
-        # Check  # rtol decreased in June '22 - suddenly failed; why?
-        assert_allclose(hs_res, hsres[key], rtol=5e-5)
+        # Check
+        assert_allclose(hs_res, hsres[key])
 
     # Additional checks - Time
     full = kernel.halfspace(**hs['21'])

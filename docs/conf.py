@@ -74,7 +74,7 @@ warnings.filterwarnings("ignore", category=UserWarning,
 # Intersphinx configuration
 intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
 }
 
 # ==== 2. General Settings ====
