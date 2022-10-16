@@ -234,14 +234,6 @@ import os
 import numpy as np
 from copy import deepcopy as dc
 from scipy.constants import mu_0
-from scipy.optimize import brute, fmin_powell
-
-# Optional imports
-try:
-    import matplotlib.pyplot as plt
-except ImportError:
-    plt = False
-    plt_msg = "* WARNING :: `matplotlib` is not installed, no figures shown."
 
 from empymod.filters import DigitalFilter
 from empymod.model import dipole, dipole_k
@@ -372,15 +364,15 @@ def design(n, spacing, shift, fI, fC=False, r=None, r_def=(1, 1, 2), reim=None,
         `full_output` is True.)
 
     """
+    from scipy.optimize import brute, fmin_powell  # Lazy for faster CLI load
 
     # === 1.  LET'S START ============
     t0 = printstartfinish(verb)
 
     # Check plot with matplotlib (soft dependency)
+    plt = _get_matplotlib(plot*verb)
     if plot > 0 and not plt:
         plot = 0
-        if verb > 0:
-            print(plt_msg)
 
     # Ensure fI, fC are lists
     def check_f(f):
@@ -598,8 +590,8 @@ def plot_result(filt, full, prntres=True):
 
     """
     # Check matplotlib (soft dependency)
+    plt = _get_matplotlib(1)
     if not plt:
-        print(plt_msg)
         return
 
     if prntres:
@@ -699,11 +691,8 @@ def print_result(filt, full=None):
         spacing = full[0][0]
         shift = full[0][1]
     else:  # Print what we can without full
-        n = filt.base.size
-        a = filt.base[-1]
-        b = filt.base[-2]
-        spacing = np.log(a)-np.log(b)
-        shift = np.log(a)-spacing*(n//2)
+        spacing = np.log(filt.base[-1] / filt.base[-2])
+        shift = np.log(filt.base[(filt.base.size + 1) // 2 - 1])
     print(f"   > Spacing       : {spacing:1.10g}")
     print(f"   > Shift         : {shift:1.10g}")
     print(f"   > Base min/max  : {filt.base.min():e} / {filt.base.max():e}")
@@ -713,6 +702,7 @@ def print_result(filt, full=None):
 
 def _call_qc_transform_pairs(n, ispacing, ishift, fI, fC, r, r_def, reim):
     r"""QC the input transform pairs."""
+    plt = _get_matplotlib()
     print("* QC: Input transform-pairs:")
     print("  fC: x-range defined through `n`, `spacing`, `shift`, and "
           "`r`-parameters; b-range defined through `r`-parameter.")
@@ -760,6 +750,7 @@ def _call_qc_transform_pairs(n, ispacing, ishift, fI, fC, r, r_def, reim):
 
 def _plot_transform_pairs(fCI, r, k, axes, tit):
     r"""Plot the input transform pairs."""
+    plt = _get_matplotlib()
 
     # Plot lhs
     plt.sca(axes[0])
@@ -814,8 +805,8 @@ def _plot_inversion(f, rhs, r, k, imin, spacing, shift, cvar):
     r"""QC the resulting filter."""
 
     # Check matplotlib (soft dependency)
+    plt = _get_matplotlib(1)
     if not plt:
-        print(plt_msg)
         return
 
     plt.figure("Inversion result "+f.name, figsize=(9.5, 4))
@@ -1449,3 +1440,22 @@ def _print_count(log):
         log['cnt1'] = cp
 
     return log
+
+
+# Load matplotlib, if available.
+def _get_matplotlib(verb=0):
+    """Lazy load of matplotlib.
+
+    Matplotlib is a soft dependency of empymod, and only used in fdesign.
+    However, if it is installed we want to avoid loading straight away, as
+    this slows down the start of the CLI significantly.
+    """
+    try:
+        import matplotlib.pyplot as plt  # Lazy for faster CLI load
+    except ImportError:
+        if verb > 0:
+            print(
+                "* WARNING :: `matplotlib` is not installed, no figures shown."
+            )
+        plt = False
+    return plt

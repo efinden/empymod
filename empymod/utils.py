@@ -28,7 +28,6 @@ This module consists of four groups of functions:
 # Mandatory imports
 import copy
 import numpy as np
-from scipy import special
 from timeit import default_timer
 from datetime import timedelta, datetime
 
@@ -1007,6 +1006,7 @@ def check_time(time, signal, ft, ftarg, verb):
         freq = np.squeeze(omega/2/np.pi)
 
     elif ft == 'qwe':     # QWE (using sine and imag-part)
+        from scipy import special  # Lazy for faster CLI load
 
         # If switch-off is required, use cosine, else sine
         args.pop('sincos', None)
@@ -1533,7 +1533,6 @@ def get_off_ang(src, rec, nsrc, nrec, verb):
 
     # Minimum offset to avoid singularities at off = 0 m.
     # => min_off can be set with utils.set_min
-    angle[np.where(off < _min_off)] = np.nan
     off = _check_min(off, _min_off, 'Offsets', 'm', verb)
 
     return off, angle
@@ -1663,6 +1662,8 @@ def get_azm_dip(inp, iz, ninpz, intpts, isdipole, strength, name, verb):
 
         # Gauss quadrature if intpts > 2; else set to center of tinp
         if intpts > 2:  # Calculate the dipole positions
+            from scipy import special  # Lazy for faster CLI load
+
             # Get integration positions and weights
             g_x, g_w = special.roots_legendre(intpts)
             g_x = np.outer(g_x, dl/2.0)  # Adjust to tinp length
@@ -1764,7 +1765,7 @@ def get_kwargs(names, defaults, kwargs):
     - ONLY analytical: solution
     - ONLY bipole, loop: mrec, recpts, strength
     - ONLY bipole, dipole, loop, gpr: ht, htarg, ft, ftarg, xdirect, loop
-    - ONLY bipole, dipole, loop, analytical: signal
+    - ONLY bipole, dipole, loop, analytical: signal, squeeze
     - ONLY dipole, analytical, gpr, dipole_k: ab
     - ONLY bipole, dipole, loop, gpr, dipole_k: depth
     - ONLY bipole, dipole, loop, analytical, gpr: freqtime
@@ -1790,7 +1791,7 @@ def get_kwargs(names, defaults, kwargs):
     known_keys = set([
             'depth', 'ht', 'htarg', 'ft', 'ftarg', 'xdirect', 'loop', 'signal',
             'ab', 'freqtime', 'freq', 'wavenumber', 'solution', 'cf', 'gain',
-            'msrc', 'srcpts', 'mrec', 'recpts', 'strength'
+            'msrc', 'srcpts', 'mrec', 'recpts', 'strength', 'squeeze'
     ])
 
     # Loop over wanted parameters.
