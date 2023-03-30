@@ -13,9 +13,9 @@ v2.2.x
 latest
 ------
 
-- Modelling routines: The definition of the coordinates for ``dipole``,
-  ``dipole_k``, and ``analytical`` is now more flexible (``x`` and ``y``
-  coordinate can now have different dimension, as long as one is a scalar).
+- Modelling routines: The definition of the coordinates (and, where it applies,
+  azimuths and dips/elevations) is now more flexible (see corresponding
+  function docstrings).
 
 - Bug fixes, small improvements and maintenance
 
