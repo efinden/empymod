@@ -13,9 +13,10 @@ v2.2.x
 latest
 ------
 
-- Modelling routines: The definition of the coordinates (and, where it applies,
-  azimuths and dips/elevations) is now more flexible (see corresponding
-  function docstrings).
+- Modelling routines: The definition of sources and receivers is more flexible:
+  all parameters  can now be either of shape ``(1,)`` or ``(N,)``, where ``N``
+  is the number of sources/receivers. The exception is ``z`` for dipoles, which
+  must be a scalar.
 
 - Bug fixes, small improvements and maintenance
 
